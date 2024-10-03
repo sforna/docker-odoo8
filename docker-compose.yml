@@ -23,34 +23,11 @@ services:
     volumes:
       - odoo-db-data:/var/lib/postgresql/data
       - ./backups:/backups
-    user: "${UID}:${GID}"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U odoo"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  db-restore:
-    image: postgres:9.4
-    depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - ./backups:/backups
-    user: "${UID}:${GID}"
-    environment:
-      - PGHOST=db
-      - PGUSER=odoo
-      - PGPASSWORD=odoo_db_password
-      - PGDATABASE=postgres
-    command: >
-      bash -c "if [ -f /backups/db_backup.sql ]; then
-                 echo 'Restoring database...';
-                 psql -f /backups/db_backup.sql;
-                 echo 'Database restored.';
-               else
-                 echo 'No backup file found. Skipping restore.';
-               fi"
 
 volumes:
   odoo-web-data:
